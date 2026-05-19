@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nutree · Email Sender</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0B1914;
+    --surface:   #142822;
+    --surface2:  #1A3330;
+    --border:    rgba(212,229,222,0.10);
+    --border-hi: rgba(45,212,168,0.30);
+    --teal:      #2DD4A8;
+    --teal-dim:  rgba(45,212,168,0.12);
+    --fg1:       #F8F5F0;
+    --fg2:       #B5C9BC;
+    --fg3:       #6B7B75;
+    --error:     #F87171;
+    --success:   #34D399;
+    --font-h:    'Plus Jakarta Sans', sans-serif;
+    --font-b:    'DM Sans', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--fg1);
+    font-family: var(--font-b);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  .app {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+    display: grid;
+    gap: 24px;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-mark {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg, #1E5447, #2DD4A8);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-h); font-weight: 800; font-size: 16px;
+    color: #0B1914; flex-shrink: 0;
+  }
+
+  .logo-text { font-family: var(--font-h); font-size: 18px; font-weight: 800; letter-spacing: 0.12em; color: var(--teal); }
+  .logo-sub  { font-size: 12px; color: var(--fg3); margin-top: 1px; }
+
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 680px) { .cols { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+  }
+
+  .card-title {
+    font-family: var(--font-h); font-size: 13px; font-weight: 700;
+    letter-spacing: 0.10em; text-transform: uppercase; color: var(--fg3);
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title svg { flex-shrink: 0; }
+
+  label {
+    display: block;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--fg3);
+    margin-bottom: 6px;
+  }
+
+  select, input[type="text"], input[type="email"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--fg1);
+    font-family: var(--font-b);
+    font-size: 14px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+    appearance: none;
+  }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7B75' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+    cursor: pointer;
+  }
+  select:focus, input:focus { border-color: var(--border-hi); }
+  select option { background: #1A3330; }
+
+  /* ── Variables ── */
+  #vars-list { display: grid; gap: 10px; margin-top: 16px; }
+
+  .var-row { display: grid; grid-template-columns: 130px 1fr; align-items: center; gap: 10px; }
+
+  .var-key {
+    font-size: 12px; font-weight: 600; color: var(--fg2);
+    font-family: 'Courier New', monospace;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .var-row.from-csv .var-key { color: var(--teal); }
+
+  .from-csv-badge {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+    color: var(--teal); background: var(--teal-dim);
+    border-radius: 4px; padding: 2px 6px; white-space: nowrap;
+  }
+
+  /* ── Upload zone ── */
+  .upload-zone {
+    position: relative;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--border-hi);
+    background: var(--teal-dim);
+  }
+  .upload-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .upload-icon { color: var(--fg3); margin-bottom: 10px; }
+  .upload-label { font-size: 14px; color: var(--fg2); font-weight: 500; }
+  .upload-hint  { font-size: 12px; color: var(--fg3); margin-top: 4px; }
+
+  /* ── CSV loaded bar ── */
+  .csv-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--teal-dim); border: 1px solid var(--border-hi);
+    border-radius: 8px; padding: 9px 12px;
+    margin-bottom: 12px;
+  }
+  .csv-bar-icon { color: var(--teal); flex-shrink: 0; }
+  .csv-bar-text { flex: 1; font-size: 13px; color: var(--fg2); }
+  .csv-bar-text strong { color: var(--fg1); }
+  .csv-clear {
+    background: none; border: none; color: var(--fg3); cursor: pointer;
+    font-size: 18px; line-height: 1; padding: 0 2px;
+    transition: color 0.15s;
+  }
+  .csv-clear:hover { color: var(--error); }
+
+  /* ── Recipients list ── */
+  #recipients-list { display: grid; gap: 8px; margin-bottom: 14px; max-height: 320px; overflow-y: auto; }
+
+  .recipient-row {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px;
+    cursor: pointer; transition: border-color 0.15s;
+    user-select: none;
+  }
+  .recipient-row:hover { border-color: rgba(45,212,168,0.20); }
+  .recipient-row.checked { border-color: var(--border-hi); background: var(--teal-dim); }
+
+  .recipient-row input[type="checkbox"] {
+    width: 16px; height: 16px; flex-shrink: 0;
+    accent-color: var(--teal); cursor: pointer;
+  }
+  .recipient-info { flex: 1; min-width: 0; }
+  .recipient-name  { font-weight: 600; font-size: 13px; color: var(--fg1); }
+  .recipient-email { font-size: 12px; color: var(--fg3); margin-top: 1px; }
+
+  .recipient-code {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    color: var(--teal); background: var(--teal-dim);
+    border-radius: 4px; padding: 2px 8px; flex-shrink: 0;
+  }
+
+  /* ── CSV validation ── */
+  .csv-cols { display: flex; flex-wrap: wrap; gap: 6px; }
+  .col-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 600; border-radius: 4px;
+    padding: 3px 8px; letter-spacing: 0.04em;
+  }
+  .col-chip.ok   { color: var(--success); background: rgba(52,211,153,0.10); }
+  .col-chip.warn { color: #FBBF24;        background: rgba(251,191,36,0.10); }
+  .col-chip.miss { color: var(--error);   background: rgba(248,113,113,0.10); }
+  .csv-warn-msg {
+    font-size: 12px; color: #FBBF24; margin-top: 8px;
+    line-height: 1.5;
+  }
+
+  /* ── Select all strip ── */
+  .select-strip {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .select-strip-label { font-size: 12px; color: var(--fg3); }
+  .link-btn {
+    background: none; border: none; color: var(--teal);
+    font-family: var(--font-b); font-size: 12px; cursor: pointer; padding: 0;
+  }
+  .link-btn:hover { text-decoration: underline; }
+
+  /* ── Add custom ── */
+  .add-divider {
+    border: none; border-top: 1px solid var(--border);
+    margin: 12px 0;
+  }
+
+  #custom-form {
+    display: none;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 8px;
+    margin-top: 10px;
+    align-items: end;
+  }
+  #custom-form.open { display: grid; }
+
+  .btn-ghost {
+    background: none; border: 1px dashed var(--border);
+    border-radius: 8px; color: var(--fg3);
+    font-family: var(--font-b); font-size: 13px; font-weight: 500;
+    padding: 9px 14px; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    width: 100%; transition: border-color 0.15s, color 0.15s;
+  }
+  .btn-ghost:hover { border-color: var(--border-hi); color: var(--fg1); }
+
+  .btn-icon {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--teal);
+    font-family: var(--font-b); font-size: 13px; font-weight: 600;
+    padding: 9px 14px; cursor: pointer;
+    transition: background 0.15s; white-space: nowrap;
+  }
+  .btn-icon:hover { background: var(--teal-dim); }
+
+  /* ── Send ── */
+  #send-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #1E6B52 0%, #2DD4A8 100%);
+    border: none; border-radius: 12px;
+    color: #0B1914; font-family: var(--font-h);
+    font-size: 15px; font-weight: 700;
+    padding: 16px 32px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: opacity 0.15s, transform 0.1s;
+    letter-spacing: 0.01em;
+  }
+  #send-btn:hover:not(:disabled) { opacity: 0.92; transform: translateY(-1px); }
+  #send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* ── Summary ── */
+  #summary {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 13px; color: var(--fg2); flex-wrap: wrap;
+  }
+  #summary strong { color: var(--fg1); }
+  .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+
+  /* ── Log ── */
+  #log-card { display: none; }
+  #log-card.visible { display: block; }
+  #log {
+    background: var(--bg); border-radius: 8px; border: 1px solid var(--border);
+    padding: 14px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 12.5px; line-height: 1.7;
+    max-height: 280px; overflow-y: auto;
+    white-space: pre-wrap;
+  }
+  .log-ok   { color: var(--success); }
+  .log-err  { color: var(--error); }
+  .log-info { color: var(--fg3); }
+  .log-done { color: var(--teal); font-weight: 600; }
+
+  /* ── Spinner ── */
+  .spin {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(11,25,20,0.3);
+    border-top-color: #0B1914;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-state { text-align: center; padding: 20px; color: var(--fg3); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <header>
+    <div class="logo-mark">N</div>
+    <div>
+      <div class="logo-text">NUTREE</div>
+      <div class="logo-sub">Email Sender</div>
+    </div>
+  </header>
+
+  <!-- Summary bar -->
+  <div id="summary">
+    <span>Template: <strong id="sum-template">—</strong></span>
+    <div class="dot"></div>
+    <span>Recipients: <strong id="sum-count">0</strong></span>
+    <div class="dot"></div>
+    <span id="sum-note" style="color:var(--fg3);">Select a template to begin</span>
+  </div>
+
+  <div class="cols">
+
+    <!-- Left: Template + Variables -->
+    <div style="display:grid;gap:20px;">
+
+      <div class="card">
+        <div class="card-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          Template
+        </div>
+        <label for="template-select">Choose template</label>
+        <select id="template-select">
+          <option value="">Loading…</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 7h16M4 12h10M4 17h7"/></svg>
+          Template Variables
+        </div>
+        <div id="vars-list">
+          <div class="empty-state">Select a template to see its variables</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right: Recipients -->
+    <div class="card">
+      <div class="card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Recipients
+      </div>
+
+      <!-- Upload zone (shown when no CSV loaded) -->
+      <div id="upload-zone" class="upload-zone"
+           ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+        <input type="file" accept=".csv" onchange="onFileInput(event)">
+        <div class="upload-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+        <div class="upload-label">Drop CSV here or click to browse</div>
+        <div class="upload-hint">Required: email &nbsp;·&nbsp; Optional: first_name (and any template vars)</div>
+      </div>
+
+      <!-- Recipients list (shown after CSV loaded) -->
+      <div id="recipients-panel" style="display:none;">
+
+        <!-- CSV loaded bar -->
+        <div class="csv-bar">
+          <div class="csv-bar-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="csv-bar-text"><strong id="csv-filename">—</strong> · <span id="csv-count">0</span> recipients</div>
+          <button class="csv-clear" title="Remove CSV" onclick="clearCsv()">×</button>
+        </div>
+
+        <!-- Column validation -->
+        <div id="csv-validation" style="display:none; margin-bottom:12px;"></div>
+
+        <!-- Select all / none -->
+        <div class="select-strip">
+          <span class="select-strip-label" id="checked-count">0 selected</span>
+          <span>
+            <button class="link-btn" onclick="selectAll()">All</button>
+            &nbsp;·&nbsp;
+            <button class="link-btn" onclick="selectNone()">None</button>
+          </span>
+        </div>
+
+        <div id="recipients-list"></div>
+
+        <hr class="add-divider">
+
+        <button class="btn-ghost" onclick="toggleCustomForm()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          Add recipient
+        </button>
+        <div id="custom-form">
+          <div>
+            <label>Email</label>
+            <input type="email" id="custom-email" placeholder="user@example.com" onkeydown="if(event.key==='Enter')addCustom()">
+          </div>
+          <div>
+            <label>First name</label>
+            <input type="text" id="custom-name" placeholder="Jane" onkeydown="if(event.key==='Enter')addCustom()">
+          </div>
+          <button class="btn-icon" onclick="addCustom()">Add</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <button id="send-btn" onclick="sendEmails()" disabled>
+    Send Campaign
+  </button>
+
+  <div class="card" id="log-card">
+    <div class="card-title" style="margin-bottom:12px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Send Log
+    </div>
+    <div id="log"></div>
+  </div>
+
+</div>
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let allVars = [];
+let recipients = []; // { email, first_name, checked, ...csvColumns }
+
+// ── Init ───────────────────────────────────────────────────────────────────
+async function init() {
+  const templates = await fetch('/api/templates').then(r => r.json());
+  const sel = document.getElementById('template-select');
+  sel.innerHTML = '<option value="">— Select template —</option>' +
+    templates.map(t => `<option value="${t}">${t}</option>`).join('');
+  sel.addEventListener('change', onTemplateChange);
+  updateSummary();
+}
+
+// ── Template ───────────────────────────────────────────────────────────────
+async function onTemplateChange() {
+  const name = document.getElementById('template-select').value;
+  const list = document.getElementById('vars-list');
+  if (!name) {
+    allVars = [];
+    list.innerHTML = '<div class="empty-state">Select a template to see its variables</div>';
+    updateSummary();
+    return;
+  }
+  list.innerHTML = '<div class="empty-state" style="color:var(--fg3);">Loading…</div>';
+  const config = await fetch(`/api/templates/${encodeURIComponent(name)}/config`).then(r => r.json());
+  allVars = Object.entries(config.vars || {}).map(([key, v]) => ({
+    key,
+    label:   v.label || key,
+    default: v.default ?? '',
+    fromCsv: v.fromCsv || false,
+  }));
+  renderVars();
+  updateSummary();
+}
+
+function renderVars() {
+  const list = document.getElementById('vars-list');
+  if (!allVars.length) {
+    list.innerHTML = '<div class="empty-state">No variables in config</div>';
+    return;
+  }
+  list.innerHTML = '<div style="display:grid;gap:10px;margin-top:8px;">' +
+    allVars.map(v => `
+      <div class="var-row ${v.fromCsv ? 'from-csv' : ''}">
+        <span class="var-key" title="${v.key}">${v.label}</span>
+        ${v.fromCsv
+          ? `<span class="from-csv-badge">from CSV</span>`
+          : `<input type="text" data-var="${v.key}" value="${v.default ?? ''}" placeholder="${v.label}">`
+        }
+      </div>`).join('') + '</div>';
+}
+
+// ── CSV parsing (client-side) ───────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return { rows: [], detected: {} };
+
+  const rawHeaders = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/^"|"$/g, ''));
+
+  const detected = {
+    email:      rawHeaders.indexOf('email'),
+    first_name: rawHeaders.findIndex(h => ['first_name','name','firstname'].includes(h)),
+  };
+
+  const rows = lines.slice(1)
+    .map(line => {
+      const cols = line.split(',');
+      const get = i => (i >= 0 && cols[i] ? cols[i].trim().replace(/^"|"$/g, '') : '');
+      const row = { checked: true };
+      rawHeaders.forEach((h, i) => { row[h] = get(i); });
+      if (!row.first_name && detected.first_name < 0) {
+        const alt = rawHeaders.findIndex(h => ['name','firstname'].includes(h));
+        if (alt >= 0) row.first_name = get(alt);
+      }
+      row.first_name = row.first_name || '';
+      return row;
+    })
+    .filter(r => r.email && r.email.includes('@'));
+
+  return { rows, detected };
+}
+
+function showValidation(detected) {
+  const el = document.getElementById('csv-validation');
+
+  const REQUIRED = [
+    { key: 'email',      label: 'email',      required: true },
+    { key: 'first_name', label: 'first_name',  required: false },
+  ];
+
+  const chips = REQUIRED.map(col => {
+    const found = detected[col.key] >= 0;
+    const cls   = found ? 'ok' : (col.required ? 'miss' : 'warn');
+    const icon  = found ? '✓' : '✗';
+    return `<span class="col-chip ${cls}">${icon} ${col.label}</span>`;
+  }).join('');
+
+  el.innerHTML = `<div class="csv-cols">${chips}</div>`;
+  el.style.display = 'block';
+}
+
+function loadFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const { rows, detected } = parseCSV(e.target.result);
+    if (!rows.length) {
+      alert('No valid recipients found. Make sure the CSV has an "email" column.');
+      return;
+    }
+    recipients = rows;
+    document.getElementById('csv-filename').textContent = file.name;
+    document.getElementById('csv-count').textContent = rows.length;
+    document.getElementById('upload-zone').style.display = 'none';
+    document.getElementById('recipients-panel').style.display = 'block';
+    showValidation(detected);
+    renderRecipients();
+    updateSummary();
+  };
+  reader.readAsText(file);
+}
+
+// ── Drag & drop ────────────────────────────────────────────────────────────
+function onDragOver(e)  { e.preventDefault(); document.getElementById('upload-zone').classList.add('drag-over'); }
+function onDragLeave(e) { document.getElementById('upload-zone').classList.remove('drag-over'); }
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag-over');
+  loadFile(e.dataTransfer.files[0]);
+}
+function onFileInput(e) { loadFile(e.target.files[0]); }
+
+function clearCsv() {
+  recipients = [];
+  document.getElementById('upload-zone').style.display = 'block';
+  document.getElementById('recipients-panel').style.display = 'none';
+  document.getElementById('csv-validation').style.display = 'none';
+  updateSummary();
+}
+
+// ── Recipient list ─────────────────────────────────────────────────────────
+function renderRecipients() {
+  const list = document.getElementById('recipients-list');
+  list.innerHTML = recipients.map((r, i) => `
+    <div class="recipient-row ${r.checked ? 'checked' : ''}" onclick="toggleR(${i})">
+      <input type="checkbox" ${r.checked ? 'checked' : ''} onclick="event.stopPropagation();toggleR(${i})">
+      <div class="recipient-info">
+        <div class="recipient-name">${r.first_name || '—'}</div>
+        <div class="recipient-email">${r.email}</div>
+      </div>
+    </div>`).join('');
+  const n = recipients.filter(r => r.checked).length;
+  document.getElementById('checked-count').textContent = `${n} selected`;
+  updateSummary();
+}
+
+function toggleR(i) {
+  recipients[i].checked = !recipients[i].checked;
+  renderRecipients();
+}
+
+function selectAll()  { recipients.forEach(r => r.checked = true);  renderRecipients(); }
+function selectNone() { recipients.forEach(r => r.checked = false); renderRecipients(); }
+
+function toggleCustomForm() {
+  const form = document.getElementById('custom-form');
+  form.classList.toggle('open');
+  if (form.classList.contains('open')) document.getElementById('custom-email').focus();
+}
+
+function addCustom() {
+  const email = document.getElementById('custom-email').value.trim();
+  const first_name = document.getElementById('custom-name').value.trim();
+  if (!email) return;
+  recipients.push({ email, first_name: first_name || email.split('@')[0], checked: true });
+  document.getElementById('custom-email').value = '';
+  document.getElementById('custom-name').value = '';
+  document.getElementById('custom-form').classList.remove('open');
+  // Show panel if it was hidden
+  document.getElementById('upload-zone').style.display = 'none';
+  document.getElementById('recipients-panel').style.display = 'block';
+  document.getElementById('csv-filename').textContent = 'Custom';
+  document.getElementById('csv-count').textContent = recipients.length;
+  renderRecipients();
+}
+
+// ── Summary ────────────────────────────────────────────────────────────────
+function updateSummary() {
+  const template = document.getElementById('template-select').value;
+  const checked  = recipients.filter(r => r.checked);
+  document.getElementById('sum-template').textContent = template || '—';
+  document.getElementById('sum-count').textContent = checked.length;
+  document.getElementById('sum-note').textContent =
+    allVars.length ? `${allVars.length} variable${allVars.length !== 1 ? 's' : ''}` : 'Select a template to begin';
+  document.getElementById('send-btn').disabled = !template || !checked.length;
+}
+
+// ── Send ───────────────────────────────────────────────────────────────────
+async function sendEmails() {
+  const template = document.getElementById('template-select').value;
+  const selected = recipients.filter(r => r.checked);
+  if (!template || !selected.length) return;
+
+  const overrides = {};
+  document.querySelectorAll('[data-var]').forEach(inp => {
+    const v = inp.value.trim();
+    if (v) overrides[inp.dataset.var] = v;
+  });
+
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spin"></div> Sending…';
+
+  const logCard = document.getElementById('log-card');
+  const log = document.getElementById('log');
+  logCard.classList.add('visible');
+  log.innerHTML = `<span class="log-info">Sending ${template} to ${selected.length} recipient${selected.length > 1 ? 's' : ''}…\n</span>`;
+
+  try {
+    const resp = await fetch('/api/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ template, recipients: selected, overrides }),
+    });
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const ev = JSON.parse(line.slice(6));
+        if (ev.status === 'ok') {
+          log.innerHTML += `<span class="log-ok">✓ ${ev.name || ''} &lt;${ev.email}&gt; — id: ${ev.id}\n</span>`;
+        } else if (ev.status === 'error') {
+          log.innerHTML += `<span class="log-err">✗ ${ev.email} — ${ev.message}\n</span>`;
+        } else if (ev.status === 'done') {
+          log.innerHTML += `<span class="log-done">─── Done ───\n</span>`;
+        }
+        log.scrollTop = log.scrollHeight;
+      }
+    }
+  } catch (err) {
+    log.innerHTML += `<span class="log-err">Network error: ${err.message}\n</span>`;
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = 'Send Campaign';
+  updateSummary();
+}
+
+init();
+</script>
+</body>
+</html>
