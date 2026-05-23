@@ -11,7 +11,7 @@
     "savings":          { "label": "Savings (K)",             "default": 500 },
     "expires_in_days":  { "label": "Expires in (days)",       "default": 3 },
     "expires_at":       { "label": "Expiry date · time",      "default": "21.05.2026 · 23:59" },
-    "ios_url":          { "label": "App Store URL",           "default": "https://apps.apple.com/app/nutree/id000000000" },
+    "ios_url":          { "label": "App Store URL",           "default": "https://apps.apple.com/app/apple-store/id6751159552?ct=winback_01_offer&mt=8" },
     "founder_name":     { "label": "Founder Name",            "default": "Alex" },
     "founder_initial":  { "label": "Founder Initial (1 char)","default": "A" }
   }
