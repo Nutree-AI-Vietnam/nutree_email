@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="x-apple-disable-message-reformatting">
-  <meta name="color-scheme" content="light">
-  <meta name="supported-color-schemes" content="light">
+  <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light only">
   <title>3 ngày trial của bạn đã kết thúc — cảm ơn bạn đã thử Nutree</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
-    :root { color-scheme: light; }
+    :root { color-scheme: light only; }
 
     * { box-sizing: border-box; }
     body, table, td, p, a, li { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
@@ -31,7 +31,34 @@
     }
     .outer-wrap { max-width: 600px !important; width: 100% !important; }
     h1, h2, h3, p, td, span, a { word-break: break-word; overflow-wrap: break-word; }
-    .cta-btn { background-color: #5F7F65; }
+    .cta-btn { background-color: #5F7F65 !important; }
+
+    /* ── Force light mode — override Gmail Android dark mode ── */
+    [data-ogsc] body,
+    [data-ogsc] .body-wrap          { background-color: #F8F1E7 !important; }
+    [data-ogsc] .price-card-bg      { background-color: #FFFFFF !important; }
+    [data-ogsc] .features-card-bg   { background-color: #EEF4E8 !important; }
+    [data-ogsc] .founder-card-bg    { background-color: #FAF3EC !important; }
+    [data-ogsc] .social-card-bg     { background-color: #FFFFFF !important; }
+    [data-ogsc] .nutree-logo        { color: #557B5D !important; }
+    [data-ogsc] .hero-h1            { color: #2F3E34 !important; }
+    [data-ogsc] .hero-sub           { color: #667560 !important; }
+    [data-ogsc] .feature-txt        { color: #2F3E34 !important; }
+    [data-ogsc] .footer-txt         { color: #9B9A8F !important; }
+
+    @media (prefers-color-scheme: dark) {
+      body,
+      .body-wrap        { background-color: #F8F1E7 !important; }
+      .price-card-bg    { background-color: #FFFFFF !important; }
+      .features-card-bg { background-color: #EEF4E8 !important; }
+      .founder-card-bg  { background-color: #FAF3EC !important; }
+      .social-card-bg   { background-color: #FFFFFF !important; }
+      .nutree-logo      { color: #557B5D !important; }
+      .hero-h1          { color: #2F3E34 !important; }
+      .hero-sub         { color: #667560 !important; }
+      .feature-txt      { color: #2F3E34 !important; }
+      .footer-txt       { color: #9B9A8F !important; }
+    }
 
     @media only screen and (max-width: 600px) {
       .email-wrapper { padding: 12px !important; }
@@ -85,7 +112,7 @@
   <!--<![endif]-->
 
   <!-- Body wrapper -->
-  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" bgcolor="#F8F1E7" style="background-color: #F8F1E7 !important; background-image: radial-gradient(120% 80% at 50% -10%, rgba(229,190,171,0.32) 0%, rgba(226,236,217,0.46) 45%, transparent 72%); background-repeat: no-repeat;">
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" bgcolor="#F8F1E7" class="body-wrap" style="background-color: #F8F1E7 !important; background-image: radial-gradient(120% 80% at 50% -10%, rgba(229,190,171,0.32) 0%, rgba(226,236,217,0.46) 45%, transparent 72%); background-repeat: no-repeat;">
     <tr>
       <td align="center" class="email-wrapper" style="padding: 36px 20px 44px;">
 
@@ -195,7 +222,7 @@
                ═══════════════════════════════════════════════════ -->
           <tr>
             <td style="padding-bottom: 24px;">
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" bgcolor="#FFFFFF" style="border-radius: 18px; background: #FFFFFF; background-color: #FFFFFF !important;">
+              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" bgcolor="#FFFFFF" class="price-card-bg" style="border-radius: 18px; background: #FFFFFF; background-color: #FFFFFF !important;">
                 <tr>
                   <td class="card-pad" style="padding: 26px 24px 24px;">
 
@@ -344,7 +371,7 @@
                ═══════════════════════════════════════════════════ -->
           <tr>
             <td style="padding-bottom: 18px;">
-              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background: #FFFFFF; border-radius: 14px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" class="social-card-bg" style="background: #FFFFFF; background-color: #FFFFFF !important; border-radius: 14px;">
                 <tr>
                   <td class="card-pad" style="padding: 16px 18px;">
                     <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
