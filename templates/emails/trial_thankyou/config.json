@@ -1,0 +1,11 @@
+{
+  "name": "Trial — Thank You & Upsell",
+  "subject": "3 ngày trial của bạn đã kết thúc — cảm ơn bạn 🌱",
+  "description": "Sent after 3-day trial ends. Thanks user, reassures all trial data is kept safe, upsells full plan at 499K/year.",
+  "vars": {
+    "first_name":      { "label": "First Name",               "default": "",                                                                              "fromCsv": true },
+    "ios_url":         { "label": "App Store URL",            "default": "https://apps.apple.com/app/apple-store/id6751159552?ct=trial_thankyou&mt=8" },
+    "founder_name":    { "label": "Founder Name",             "default": "Alex" },
+    "founder_initial": { "label": "Founder Initial (1 char)", "default": "A" }
+  }
+}
