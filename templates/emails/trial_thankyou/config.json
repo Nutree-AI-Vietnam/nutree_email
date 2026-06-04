@@ -9,7 +9,7 @@
     "price_monthly":    { "label": "Monthly Equiv. (K)",       "default": 42 },
     "savings":          { "label": "Savings (K)",              "default": 400 },
     "promo_code":       { "label": "Promo Code",               "default": "" },
-    "expires_in_days":  { "label": "Expires in (days)",        "default": 7 },
+    "expires_in_days":  { "label": "Expires in (days)",        "default": "" },
     "expires_at":       { "label": "Expiry date · time",       "default": "" },
     "ios_url":          { "label": "App Store URL",            "default": "https://apps.apple.com/app/apple-store/id6751159552?ct=trial_thankyou&mt=8" },
     "founder_name":     { "label": "Founder Name",             "default": "Alex" },
