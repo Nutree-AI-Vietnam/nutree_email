@@ -3,9 +3,16 @@
   "subject": "3 ngày trial của bạn đã kết thúc — cảm ơn bạn 🌱",
   "description": "Sent after 3-day trial ends. Thanks user, reassures all trial data is kept safe, upsells full plan at 499K/year.",
   "vars": {
-    "first_name":      { "label": "First Name",               "default": "",                                                                              "fromCsv": true },
-    "ios_url":         { "label": "App Store URL",            "default": "https://apps.apple.com/app/apple-store/id6751159552?ct=trial_thankyou&mt=8" },
-    "founder_name":    { "label": "Founder Name",             "default": "Alex" },
-    "founder_initial": { "label": "Founder Initial (1 char)", "default": "A" }
+    "first_name":       { "label": "First Name",               "default": "",                                                                             "fromCsv": true },
+    "price_old":        { "label": "Original Price (K)",       "default": 899 },
+    "price_new":        { "label": "Sale Price (K)",           "default": 499 },
+    "price_monthly":    { "label": "Monthly Equiv. (K)",       "default": 42 },
+    "savings":          { "label": "Savings (K)",              "default": 400 },
+    "promo_code":       { "label": "Promo Code",               "default": "" },
+    "expires_in_days":  { "label": "Expires in (days)",        "default": 7 },
+    "expires_at":       { "label": "Expiry date · time",       "default": "" },
+    "ios_url":          { "label": "App Store URL",            "default": "https://apps.apple.com/app/apple-store/id6751159552?ct=trial_thankyou&mt=8" },
+    "founder_name":     { "label": "Founder Name",             "default": "Alex" },
+    "founder_initial":  { "label": "Founder Initial (1 char)", "default": "A" }
   }
 }

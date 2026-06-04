@@ -220,7 +220,7 @@
                     <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 10px;">
                       <tr>
                         <td align="center">
-                          <span class="big-price" style="font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; font-size: 72px; font-weight: 800; color: #B8794A; letter-spacing: -0.04em; line-height: 1;">499</span><span class="price-k" style="font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; font-size: 28px; font-weight: 700; color: #B8794A; letter-spacing: -0.02em;">K</span><span style="font-family: 'DM Sans', -apple-system, sans-serif; font-size: 14px; color: #667560; margin-left: 6px;">/năm</span>
+                          <span class="big-price" style="font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; font-size: 72px; font-weight: 800; color: #B8794A; letter-spacing: -0.04em; line-height: 1;">{{ price_new|default(499) }}</span><span class="price-k" style="font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; font-size: 28px; font-weight: 700; color: #B8794A; letter-spacing: -0.02em;">K</span><span style="font-family: 'DM Sans', -apple-system, sans-serif; font-size: 14px; color: #667560; margin-left: 6px;">/năm</span>
                         </td>
                       </tr>
                     </table>
@@ -229,7 +229,7 @@
                     <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
                       <tr>
                         <td align="center" style="padding-bottom: 16px; font-family: 'DM Sans', -apple-system, sans-serif; font-size: 15px; color: #667560;">
-                          ≈ <strong style="color: #557B5D; font-weight: 700;">42K/tháng</strong> — ít hơn 1 ly trà sữa
+                          ≈ <strong style="color: #557B5D; font-weight: 700;">{{ price_monthly|default(42) }}K/tháng</strong> — ít hơn 1 ly trà sữa
                         </td>
                       </tr>
                     </table>
