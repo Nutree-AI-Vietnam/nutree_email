@@ -98,34 +98,11 @@
     }
   </style>
 
-  <!-- Dark mode overrides — isolated in separate block to avoid layout interference -->
-  <style>
-    [data-ogsc] body,
-    [data-ogsc] .body-wrap          { background-color: #F8F1E7 !important; }
-    [data-ogsc] .price-card-bg      { background-color: #FFFFFF !important; }
-    [data-ogsc] .features-card-bg   { background-color: #EEF4E8 !important; }
-    [data-ogsc] .founder-card-bg    { background-color: #FAF3EC !important; }
-    [data-ogsc] .social-card-bg     { background-color: #FFFFFF !important; }
-    [data-ogsc] .nutree-logo        { color: #557B5D !important; }
-    [data-ogsc] .hero-h1            { color: #2F3E34 !important; }
-    [data-ogsc] .hero-sub           { color: #667560 !important; }
-    [data-ogsc] .feature-txt        { color: #2F3E34 !important; }
-    [data-ogsc] .footer-txt         { color: #9B9A8F !important; }
-
-    @media (prefers-color-scheme: dark) {
-      body,
-      .body-wrap        { background-color: #F8F1E7 !important; }
-      .price-card-bg    { background-color: #FFFFFF !important; }
-      .features-card-bg { background-color: #EEF4E8 !important; }
-      .founder-card-bg  { background-color: #FAF3EC !important; }
-      .social-card-bg   { background-color: #FFFFFF !important; }
-      .nutree-logo      { color: #557B5D !important; }
-      .hero-h1          { color: #2F3E34 !important; }
-      .hero-sub         { color: #667560 !important; }
-      .feature-txt      { color: #2F3E34 !important; }
-      .footer-txt       { color: #9B9A8F !important; }
-    }
-  </style>
+  <!--
+    Dark mode protection: handled entirely via inline styles + bgcolor attributes.
+    No separate <style> block needed — Gmail splits multiple <style> blocks
+    which can break table align="center" rendering.
+  -->
 </head>
 <body bgcolor="#F8F1E7" style="margin: 0; padding: 0; background-color: #F8F1E7 !important;">
 
