@@ -1,6 +1,6 @@
 {
   "name": "Trial End — Upsell",
-  "subject": "Dữ liệu của bạn vẫn đang chờ, {{ first_name }}",
+  "subject": "3 ngày trial của mình đã kết thúc, mình có món quà muốn tặng bạn",
   "description": "Sent when trial expires. Caring tone: data is preserved, come back anytime. Soft upsell to paid plan.",
   "vars": {
     "first_name":       { "label": "First Name",              "default": "",                                                         "fromCsv": true },
