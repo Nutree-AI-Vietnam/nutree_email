@@ -5,16 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="x-apple-disable-message-reformatting">
-  <meta name="color-scheme" content="light only">
-  <meta name="supported-color-schemes" content="light only">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
   <title>3 ngày trial của bạn đã kết thúc — cảm ơn bạn đã thử Nutree</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
+  <!-- Layout styles — identical to winback_01_offer -->
   <style>
-    :root { color-scheme: light only; }
+    :root { color-scheme: light; }
 
     * { box-sizing: border-box; }
     body, table, td, p, a, li { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
@@ -29,11 +30,76 @@
       font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
+    /* Fluid container — caps at 600px on desktop, shrinks on mobile */
     .outer-wrap { max-width: 600px !important; width: 100% !important; }
+    /* Prevent text from punching out of its cell */
     h1, h2, h3, p, td, span, a { word-break: break-word; overflow-wrap: break-word; }
-    .cta-btn { background-color: #5F7F65 !important; }
+    /* CTA button: solid color fallback for Outlook/Yahoo which strip linear-gradient */
+    .cta-btn { background-color: #5F7F65; }
 
-    /* ── Force light mode — override Gmail Android dark mode ── */
+    @media only screen and (max-width: 600px) {
+      /* ── Wrapper & container ── */
+      .email-wrapper { padding: 12px !important; }
+      .outer-wrap    { width: 100% !important; max-width: 100% !important; }
+
+      /* ── Logo area ── */
+      .logo-sub     { font-size: 12px !important; letter-spacing: 0.14em !important; }
+      .logo-tagline { font-size: 12px !important; letter-spacing: 0.20em !important; }
+
+      /* ── Reason-why line ── */
+      .reason-why { font-size: 14px !important; }
+
+      /* ── Hero ── */
+      .hero-h1 {
+        font-size: 26px !important;
+        line-height: 1.25 !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+        letter-spacing: -0.01em !important;
+      }
+      .hero-sub { font-size: 14px !important; padding: 10px 0 0 !important; }
+
+      /* ── Price card ── */
+      .card-pad  { padding: 16px 14px !important; }
+      .big-price { font-size: 44px !important; }
+      .price-k   { font-size: 20px !important; }
+
+      /* ── CTA: full-width block on mobile ── */
+      .cta-btn {
+        display: block !important;
+        padding: 16px 20px !important;
+        font-size: 15px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        text-align: center !important;
+      }
+
+      /* ── Features ── */
+      .feature-txt { font-size: 13px !important; }
+
+      /* ── Social proof: stack stat above description ── */
+      .social-stat {
+        display: block !important;
+        width: 100% !important;
+        padding-right: 0 !important;
+        padding-bottom: 8px !important;
+        text-align: center !important;
+      }
+      .social-text   { display: block !important; width: 100% !important; }
+      .social-rating { font-size: 12px !important; }
+      .social-quote  { font-size: 12px !important; }
+
+      /* ── Founder ── */
+      .founder-txt  { font-size: 13px !important; }
+      .founder-role { font-size: 11px !important; }
+
+      /* ── Footer ── */
+      .footer-txt { font-size: 12px !important; line-height: 1.7 !important; }
+    }
+  </style>
+
+  <!-- Dark mode overrides — isolated in separate block to avoid layout interference -->
+  <style>
     [data-ogsc] body,
     [data-ogsc] .body-wrap          { background-color: #F8F1E7 !important; }
     [data-ogsc] .price-card-bg      { background-color: #FFFFFF !important; }
@@ -58,47 +124,6 @@
       .hero-sub         { color: #667560 !important; }
       .feature-txt      { color: #2F3E34 !important; }
       .footer-txt       { color: #9B9A8F !important; }
-    }
-
-    @media only screen and (max-width: 600px) {
-      .email-wrapper { padding: 12px !important; }
-      .outer-wrap    { width: 100% !important; max-width: 100% !important; }
-      .logo-sub     { font-size: 12px !important; letter-spacing: 0.14em !important; }
-      .logo-tagline { font-size: 12px !important; letter-spacing: 0.20em !important; }
-      .reason-why { font-size: 14px !important; }
-      .hero-h1 {
-        font-size: 26px !important;
-        line-height: 1.25 !important;
-        word-break: break-word !important;
-        overflow-wrap: break-word !important;
-        letter-spacing: -0.01em !important;
-      }
-      .hero-sub { font-size: 14px !important; padding: 10px 0 0 !important; }
-      .card-pad  { padding: 16px 14px !important; }
-      .big-price { font-size: 44px !important; }
-      .price-k   { font-size: 20px !important; }
-      .cta-btn {
-        display: block !important;
-        padding: 16px 20px !important;
-        font-size: 15px !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-        text-align: center !important;
-      }
-      .feature-txt { font-size: 13px !important; }
-      .social-stat {
-        display: block !important;
-        width: 100% !important;
-        padding-right: 0 !important;
-        padding-bottom: 8px !important;
-        text-align: center !important;
-      }
-      .social-text   { display: block !important; width: 100% !important; }
-      .social-rating { font-size: 12px !important; }
-      .social-quote  { font-size: 12px !important; }
-      .founder-txt  { font-size: 13px !important; }
-      .founder-role { font-size: 11px !important; }
-      .footer-txt { font-size: 12px !important; line-height: 1.7 !important; }
     }
   </style>
 </head>
