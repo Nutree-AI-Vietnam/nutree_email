@@ -1,0 +1,20 @@
+{
+  "name": "Trial End — Upsell",
+  "subject": "Dữ liệu của bạn vẫn đang chờ, {{ first_name }}",
+  "description": "Sent when trial expires. Caring tone: data is preserved, come back anytime. Soft upsell to paid plan.",
+  "vars": {
+    "first_name":       { "label": "First Name",              "default": "",                                                         "fromCsv": true },
+    "trial_days":       { "label": "Trial Duration (days)",   "default": 7 },
+    "log_days":         { "label": "Days Logged",             "default": 5 },
+    "promo_code":       { "label": "Promo Code",              "default": "NUTREE55" },
+    "price_old":        { "label": "Original Price (K)",      "default": 899 },
+    "price_new":        { "label": "Sale Price (K)",          "default": 399 },
+    "price_monthly":    { "label": "Monthly Equiv. (K)",      "default": 33 },
+    "savings":          { "label": "Savings (K)",             "default": 500 },
+    "expires_in_days":  { "label": "Expires in (days)",       "default": 3 },
+    "expires_at":       { "label": "Expiry date · time",      "default": "21.05.2026 · 23:59" },
+    "ios_url":          { "label": "App Store URL",           "default": "https://apps.apple.com/app/apple-store/id6751159552?ct=trial_end_upsell&mt=8" },
+    "founder_name":     { "label": "Founder Name",            "default": "Alex" },
+    "founder_initial":  { "label": "Founder Initial (1 char)","default": "A" }
+  }
+}
