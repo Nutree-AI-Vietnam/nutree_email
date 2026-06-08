@@ -166,11 +166,19 @@
   .csv-bar-text { flex: 1; font-size: 13px; color: var(--fg2); }
   .csv-bar-text strong { color: var(--fg1); }
   .csv-clear {
-    background: none; border: none; color: var(--fg3); cursor: pointer;
-    font-size: 18px; line-height: 1; padding: 0 2px;
-    transition: color 0.15s;
+    background: rgba(248,113,113,0.10);
+    border: 1px solid rgba(248,113,113,0.22);
+    border-radius: 6px;
+    color: var(--error);
+    cursor: pointer;
+    font-family: var(--font-b);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 10px;
+    white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s;
   }
-  .csv-clear:hover { color: var(--error); }
+  .csv-clear:hover { background: rgba(248,113,113,0.16); border-color: rgba(248,113,113,0.34); }
 
   /* ── Recipients list ── */
   #recipients-list { display: grid; gap: 8px; margin-bottom: 14px; max-height: 320px; overflow-y: auto; }
@@ -275,6 +283,93 @@
   #send-btn:hover:not(:disabled) { opacity: 0.92; transform: translateY(-1px); }
   #send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
+  .action-row {
+    display: grid;
+    grid-template-columns: minmax(160px, 220px) 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 560px) { .action-row { grid-template-columns: 1fr; } }
+
+  #preview-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border-hi);
+    border-radius: 12px;
+    color: var(--teal);
+    font-family: var(--font-h);
+    font-size: 15px;
+    font-weight: 700;
+    padding: 16px 24px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 0.15s, transform 0.1s;
+  }
+  #preview-btn:hover:not(:disabled) { background: var(--teal-dim); transform: translateY(-1px); }
+  #preview-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .preview-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5,13,10,0.78);
+    display: none;
+    padding: 24px;
+    z-index: 20;
+  }
+  .preview-overlay.open { display: grid; }
+  .preview-shell {
+    width: min(980px, 100%);
+    height: min(860px, calc(100vh - 48px));
+    margin: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    overflow: hidden;
+  }
+  .preview-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .preview-meta { min-width: 0; }
+  .preview-title {
+    font-family: var(--font-h);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--fg3);
+  }
+  #preview-subject {
+    margin-top: 2px;
+    color: var(--fg1);
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .preview-close {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--fg2);
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    width: 36px;
+    height: 36px;
+  }
+  .preview-close:hover { color: var(--fg1); border-color: var(--border-hi); }
+  #preview-frame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #ffffff;
+  }
+
   /* ── Summary ── */
   #summary {
     display: flex; align-items: center; gap: 12px;
@@ -372,7 +467,7 @@
       <!-- Upload zone (shown when no CSV loaded) -->
       <div id="upload-zone" class="upload-zone"
            ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
-        <input type="file" accept=".csv" onchange="onFileInput(event)">
+        <input id="csv-file-input" type="file" accept=".csv" onchange="onFileInput(event)">
         <div class="upload-icon">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -393,7 +488,7 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
           <div class="csv-bar-text"><strong id="csv-filename">—</strong> · <span id="csv-count">0</span> recipients</div>
-          <button class="csv-clear" title="Remove CSV" onclick="clearCsv()">×</button>
+          <button class="csv-clear" title="Remove current CSV and upload another" onclick="clearCsv()">Remove CSV</button>
         </div>
 
         <!-- Column validation -->
@@ -433,9 +528,14 @@
     </div>
   </div>
 
-  <button id="send-btn" onclick="sendEmails()" disabled>
-    Send Campaign
-  </button>
+  <div class="action-row">
+    <button id="preview-btn" onclick="previewEmail()" disabled>
+      Preview
+    </button>
+    <button id="send-btn" onclick="sendEmails()" disabled>
+      Send Campaign
+    </button>
+  </div>
 
   <div class="card" id="log-card">
     <div class="card-title" style="margin-bottom:12px;">
@@ -446,6 +546,20 @@
   </div>
 
 </div>
+
+<div id="preview-overlay" class="preview-overlay" onclick="if(event.target.id==='preview-overlay')closePreview()">
+  <div class="preview-shell">
+    <div class="preview-head">
+      <div class="preview-meta">
+        <div class="preview-title">Preview</div>
+        <div id="preview-subject">—</div>
+      </div>
+      <button class="preview-close" onclick="closePreview()" title="Close preview">×</button>
+    </div>
+    <iframe id="preview-frame" title="Email preview"></iframe>
+  </div>
+</div>
+
 <script>
 // ── State ──────────────────────────────────────────────────────────────────
 let allVars = [];
@@ -582,6 +696,11 @@ function onFileInput(e) { loadFile(e.target.files[0]); }
 
 function clearCsv() {
   recipients = [];
+  document.getElementById('csv-file-input').value = '';
+  document.getElementById('csv-filename').textContent = '—';
+  document.getElementById('csv-count').textContent = '0';
+  document.getElementById('checked-count').textContent = '0 selected';
+  document.getElementById('recipients-list').innerHTML = '';
   document.getElementById('upload-zone').style.display = 'block';
   document.getElementById('recipients-panel').style.display = 'none';
   document.getElementById('csv-validation').style.display = 'none';
@@ -643,19 +762,139 @@ function updateSummary() {
   document.getElementById('sum-note').textContent =
     allVars.length ? `${allVars.length} variable${allVars.length !== 1 ? 's' : ''}` : 'Select a template to begin';
   document.getElementById('send-btn').disabled = !template || !checked.length;
+  document.getElementById('preview-btn').disabled = !template;
 }
 
 // ── Send ───────────────────────────────────────────────────────────────────
-async function sendEmails() {
-  const template = document.getElementById('template-select').value;
-  const selected = recipients.filter(r => r.checked);
-  if (!template || !selected.length) return;
+const SEND_BATCH_SIZE = 100;
 
+function collectOverrides() {
   const overrides = {};
   document.querySelectorAll('[data-var]').forEach(inp => {
     const v = inp.value.trim();
     if (v) overrides[inp.dataset.var] = v;
   });
+  return overrides;
+}
+
+function previewRecipient() {
+  return recipients.find(r => r.checked) || recipients[0] || {};
+}
+
+function sendPayloadKeys() {
+  return new Set([
+    'email',
+    'first_name',
+    ...allVars.filter(v => v.fromCsv).map(v => v.key),
+  ]);
+}
+
+function compactRecipient(row) {
+  const out = {};
+  sendPayloadKeys().forEach(key => {
+    if (row[key] !== undefined) out[key] = row[key];
+  });
+  return out;
+}
+
+function chunkRecipients(rows) {
+  const chunks = [];
+  for (let i = 0; i < rows.length; i += SEND_BATCH_SIZE) {
+    chunks.push(rows.slice(i, i + SEND_BATCH_SIZE));
+  }
+  return chunks;
+}
+
+async function responseError(resp) {
+  const text = await resp.text();
+  try {
+    const json = JSON.parse(text);
+    return json.error || `HTTP ${resp.status}`;
+  } catch (_) {
+    return text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() || `HTTP ${resp.status}`;
+  }
+}
+
+async function streamSendResponse(resp, log, totals, totalBatches) {
+  if (!resp.ok) throw new Error(await responseError(resp));
+  if (!resp.body) throw new Error('No response stream');
+
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = '';
+  let batchError = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const lines = buf.split('\n');
+    buf = lines.pop();
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const ev = JSON.parse(line.slice(6));
+      if (ev.status === 'ok') {
+        totals.ok += 1;
+        log.innerHTML += `<span class="log-ok">✓ ${ev.name || ''} &lt;${ev.email}&gt; — id: ${ev.id}\n</span>`;
+      } else if (ev.status === 'error') {
+        totals.error += 1;
+        log.innerHTML += `<span class="log-err">✗ ${ev.email} — ${ev.message}\n</span>`;
+      } else if (ev.error) {
+        batchError = ev.error;
+      } else if (ev.status === 'done' && totalBatches === 1) {
+        log.innerHTML += `<span class="log-done">─── Done ───\n</span>`;
+      }
+      log.scrollTop = log.scrollHeight;
+    }
+  }
+
+  if (batchError) throw new Error(batchError);
+}
+
+async function previewEmail() {
+  const template = document.getElementById('template-select').value;
+  if (!template) return;
+
+  const btn = document.getElementById('preview-btn');
+  const original = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spin"></div> Previewing…';
+
+  try {
+    const resp = await fetch('/api/preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        template,
+        recipient: compactRecipient(previewRecipient()),
+        overrides: collectOverrides(),
+      }),
+    });
+
+    if (!resp.ok) throw new Error(await responseError(resp));
+    const data = await resp.json();
+    document.getElementById('preview-subject').textContent = data.subject || '—';
+    document.getElementById('preview-frame').srcdoc = data.html || '';
+    document.getElementById('preview-overlay').classList.add('open');
+  } catch (err) {
+    alert(`Preview failed: ${err.message}`);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = original;
+  updateSummary();
+}
+
+function closePreview() {
+  document.getElementById('preview-overlay').classList.remove('open');
+}
+
+async function sendEmails() {
+  const template = document.getElementById('template-select').value;
+  const selected = recipients.filter(r => r.checked);
+  if (!template || !selected.length) return;
+
+  const overrides = collectOverrides();
 
   const btn = document.getElementById('send-btn');
   btn.disabled = true;
@@ -667,37 +906,34 @@ async function sendEmails() {
   log.innerHTML = `<span class="log-info">Sending ${template} to ${selected.length} recipient${selected.length > 1 ? 's' : ''}…\n</span>`;
 
   try {
-    const resp = await fetch('/api/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ template, recipients: selected, overrides }),
-    });
+    const batches = chunkRecipients(selected);
+    const totals = { ok: 0, error: 0 };
 
-    const reader = resp.body.getReader();
-    const decoder = new TextDecoder();
-    let buf = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buf += decoder.decode(value, { stream: true });
-      const lines = buf.split('\n');
-      buf = lines.pop();
-      for (const line of lines) {
-        if (!line.startsWith('data: ')) continue;
-        const ev = JSON.parse(line.slice(6));
-        if (ev.status === 'ok') {
-          log.innerHTML += `<span class="log-ok">✓ ${ev.name || ''} &lt;${ev.email}&gt; — id: ${ev.id}\n</span>`;
-        } else if (ev.status === 'error') {
-          log.innerHTML += `<span class="log-err">✗ ${ev.email} — ${ev.message}\n</span>`;
-        } else if (ev.status === 'done') {
-          log.innerHTML += `<span class="log-done">─── Done ───\n</span>`;
-        }
+    for (let i = 0; i < batches.length; i++) {
+      if (batches.length > 1) {
+        log.innerHTML += `<span class="log-info">Batch ${i + 1}/${batches.length} (${batches[i].length} recipients)\n</span>`;
         log.scrollTop = log.scrollHeight;
       }
+
+      const resp = await fetch('/api/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          template,
+          recipients: batches[i].map(compactRecipient),
+          overrides,
+        }),
+      });
+
+      await streamSendResponse(resp, log, totals, batches.length);
+    }
+
+    if (batches.length > 1) {
+      log.innerHTML += `<span class="log-done">─── Done: ${totals.ok} sent, ${totals.error} error${totals.error !== 1 ? 's' : ''} ───\n</span>`;
+      log.scrollTop = log.scrollHeight;
     }
   } catch (err) {
-    log.innerHTML += `<span class="log-err">Network error: ${err.message}\n</span>`;
+    log.innerHTML += `<span class="log-err">Send stopped: ${err.message}\n</span>`;
   }
 
   btn.disabled = false;

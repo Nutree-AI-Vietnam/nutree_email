@@ -3,11 +3,13 @@ const express = require('express');
 const nunjucks = require('nunjucks');
 const fs = require('fs');
 const path = require('path');
-const csv = require('csv-parser');
 const { sendEmail } = require('./mailer');
 
 const app = express();
-app.use(express.json());
+const JSON_BODY_LIMIT = process.env.JSON_BODY_LIMIT || '2mb';
+const MAX_SEND_RECIPIENTS_PER_REQUEST = Number(process.env.MAX_SEND_RECIPIENTS_PER_REQUEST || 250);
+
+app.use(express.json({ limit: JSON_BODY_LIMIT }));
 app.use(express.static(path.join(__dirname, '../public')));
 
 const TEMPLATES_DIR  = path.join(__dirname, '../templates/emails');
@@ -35,21 +37,29 @@ function render(name, ctx) {
   return { html: njkEnv.renderString(html, ctx), config };
 }
 
-function readCsv(filePath) {
-  return new Promise((resolve, reject) => {
-    const rows = [];
-    fs.createReadStream(filePath)
-      .pipe(csv())
-      .on('data', r => {
-        if (!r.email) return;
-        const row = {};
-        for (const [k, v] of Object.entries(r))
-          row[k.trim()] = typeof v === 'string' ? v.trim() : v;
-        rows.push(row);
-      })
-      .on('end', () => resolve(rows))
-      .on('error', reject);
-  });
+function writeEvent(res, payload) {
+  res.write(`data: ${JSON.stringify(payload)}\n\n`);
+}
+
+function isPositiveSafeInteger(value) {
+  return Number.isSafeInteger(value) && value > 0;
+}
+
+function csvKeysFromConfig(config) {
+  return new Set(
+    Object.entries(config.vars).filter(([, v]) => v.fromCsv).map(([k]) => k)
+  );
+}
+
+function contextFromRecipient(config, recipient = {}, overrides = {}) {
+  const ctx = {
+    ...Object.fromEntries(Object.entries(config.vars).map(([k, v]) => [k, v.default ?? ''])),
+    ...overrides,
+  };
+  for (const key of csvKeysFromConfig(config)) {
+    if (recipient[key]) ctx[key] = recipient[key];
+  }
+  return ctx;
 }
 
 // ── API ───────────────────────────────────────────────────────────────────────
@@ -82,6 +92,26 @@ app.get('/api/recipients', (req, res) => {
   res.json(files);
 });
 
+app.post('/api/preview', async (req, res) => {
+  const { template, recipient, overrides = {} } = req.body;
+  if (!template) return res.status(400).json({ error: 'template required' });
+
+  let config;
+  try {
+    ({ config } = loadTemplate(template));
+  } catch (err) {
+    return res.status(404).json({ error: `Template load failed: ${err.message}` });
+  }
+
+  try {
+    const ctx = contextFromRecipient(config, recipient, overrides);
+    const { html } = render(template, ctx);
+    return res.json({ subject: config.subject, html });
+  } catch (err) {
+    return res.status(500).json({ error: `Preview render failed: ${err.message}` });
+  }
+});
+
 // Send — streams progress as newline-delimited JSON
 app.post('/api/send', async (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
@@ -89,7 +119,20 @@ app.post('/api/send', async (req, res) => {
 
   const { template, recipients, overrides = {} } = req.body;
   if (!template || !recipients?.length) {
-    res.write(`data: ${JSON.stringify({ error: 'template and recipients required' })}\n\n`);
+    writeEvent(res, { error: 'template and recipients required' });
+    return res.end();
+  }
+
+  if (!isPositiveSafeInteger(MAX_SEND_RECIPIENTS_PER_REQUEST)) {
+    writeEvent(res, { error: 'MAX_SEND_RECIPIENTS_PER_REQUEST must be a positive integer' });
+    return res.end();
+  }
+
+  if (recipients.length > MAX_SEND_RECIPIENTS_PER_REQUEST) {
+    writeEvent(res, {
+      error: `Too many recipients in one request. Send ${MAX_SEND_RECIPIENTS_PER_REQUEST} or fewer per batch.`,
+      maxRecipients: MAX_SEND_RECIPIENTS_PER_REQUEST,
+    });
     return res.end();
   }
 
@@ -97,47 +140,41 @@ app.post('/api/send', async (req, res) => {
   try {
     ({ config } = loadTemplate(template));
   } catch (err) {
-    res.write(`data: ${JSON.stringify({ error: `Template load failed: ${err.message}` })}\n\n`);
+    writeEvent(res, { error: `Template load failed: ${err.message}` });
     return res.end();
   }
 
-  // Build base context from config defaults
-  const baseCtx = Object.fromEntries(
-    Object.entries(config.vars).map(([k, v]) => [k, v.default ?? ''])
-  );
   const subject = config.subject;
 
-  // Which vars pull from the CSV recipient row
-  const csvKeys = new Set(
-    Object.entries(config.vars).filter(([, v]) => v.fromCsv).map(([k]) => k)
-  );
-
   for (const recipient of recipients) {
-    // Start with defaults, then apply UI overrides for non-CSV vars
-    const ctx = { ...baseCtx, ...overrides };
-    // CSV vars: recipient value wins over everything
-    for (const key of csvKeys) {
-      if (recipient[key]) ctx[key] = recipient[key];
-    }
-
     let html;
     try {
+      const ctx = contextFromRecipient(config, recipient, overrides);
       ({ html } = render(template, ctx));
     } catch (err) {
-      res.write(`data: ${JSON.stringify({ status: 'error', email: recipient.email, message: `Render: ${err.message}` })}\n\n`);
+      writeEvent(res, { status: 'error', email: recipient.email, message: `Render: ${err.message}` });
       continue;
     }
 
     try {
       const data = await sendEmail({ to: recipient.email, subject, html });
-      res.write(`data: ${JSON.stringify({ status: 'ok', email: recipient.email, name: recipient.first_name, id: data?.id })}\n\n`);
+      writeEvent(res, { status: 'ok', email: recipient.email, name: recipient.first_name, id: data?.id });
     } catch (err) {
-      res.write(`data: ${JSON.stringify({ status: 'error', email: recipient.email, message: err.message })}\n\n`);
+      writeEvent(res, { status: 'error', email: recipient.email, message: err.message });
     }
   }
 
-  res.write(`data: ${JSON.stringify({ status: 'done' })}\n\n`);
+  writeEvent(res, { status: 'done' });
   res.end();
+});
+
+app.use((err, req, res, next) => {
+  if (err?.type === 'entity.too.large') {
+    return res.status(413).json({
+      error: `Request body is too large. Upload fewer recipients per batch or keep the payload under ${JSON_BODY_LIMIT}.`,
+    });
+  }
+  return next(err);
 });
 
 if (require.main === module) {
