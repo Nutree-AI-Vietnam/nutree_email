@@ -1,6 +1,6 @@
 {
   "name": "Weightloss Announce — 299K/year",
-  "subject": "Công cụ giảm cân tiện lợi nhất thế giới — chỉ 299K/năm",
+  "subject": "{{ first_name|default('bạn') }} ơi, Nutree vừa ra mức giá mới",
   "description": "Launch announcement: Nutree Premium at 299K/year for weight loss.",
   "vars": {
     "first_name":       { "label": "First Name",               "default": "",                                                                                                   "fromCsv": true },
