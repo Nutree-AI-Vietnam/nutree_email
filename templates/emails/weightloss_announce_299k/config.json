@@ -1,0 +1,18 @@
+{
+  "name": "Weightloss Announce — 299K/year",
+  "subject": "Công cụ giảm cân tiện lợi nhất thế giới — chỉ 299K/năm",
+  "description": "Launch announcement: Nutree Premium at 299K/year for weight loss.",
+  "vars": {
+    "first_name":       { "label": "First Name",               "default": "",                                                                                                   "fromCsv": true },
+    "promo_code":       { "label": "Promo Code",               "default": "NUTREE55" },
+    "price_old":        { "label": "Original Price (K)",       "default": 899 },
+    "price_new":        { "label": "Sale Price (K)",           "default": 299 },
+    "price_monthly":    { "label": "Monthly Equiv. (K)",       "default": 25 },
+    "savings":          { "label": "Savings (K)",              "default": 600 },
+    "expires_in_days":  { "label": "Expires in (days)",        "default": 3 },
+    "expires_at":       { "label": "Expiry date · time",       "default": "30.06.2026 · 23:59" },
+    "ios_url":          { "label": "App Store URL",            "default": "https://apps.apple.com/app/apple-store/id6751159552?ct=weightloss_announce_299k&mt=8" },
+    "founder_name":     { "label": "Founder Name",             "default": "Alex" },
+    "founder_initial":  { "label": "Founder Initial (1 char)", "default": "A" }
+  }
+}
