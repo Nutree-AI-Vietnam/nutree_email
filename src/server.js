@@ -144,13 +144,12 @@ app.post('/api/send', async (req, res) => {
     return res.end();
   }
 
-  const subject = config.subject;
-
   for (const recipient of recipients) {
-    let html;
+    let html, subject;
     try {
       const ctx = contextFromRecipient(config, recipient, overrides);
       ({ html } = render(template, ctx));
+      subject = njkEnv.renderString(config.subject, ctx);
     } catch (err) {
       writeEvent(res, { status: 'error', email: recipient.email, message: `Render: ${err.message}` });
       continue;
